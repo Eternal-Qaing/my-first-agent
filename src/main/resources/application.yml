@@ -1,0 +1,13 @@
+server:
+  port: 10020
+spring:
+  application:
+    name: first-agent
+  ai:
+    openai:
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+      api-key: ${DEEPSEEK_API_KEY}
+      chat:
+        options:
+          model: qwen-turbo
+
