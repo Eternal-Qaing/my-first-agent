@@ -1,5 +1,9 @@
 server:
   port: 10020
+
+# 你的高德 API Key 配置
+amap:
+  api-key: ${AMAP_API_KEY}
 spring:
   application:
     name: first-agent
