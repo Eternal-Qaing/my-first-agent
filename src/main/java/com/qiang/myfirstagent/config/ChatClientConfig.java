@@ -16,10 +16,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ChatClientConfig {
     @Bean
-    public ChatClient chatClient(ChatClient.Builder builder, WeatherTools weatherTools) {
-        ChatMemory chatMemory = MessageWindowChatMemory.builder()
-                .maxMessages(10)
-                .build();
+    public ChatClient chatClient(ChatClient.Builder builder, WeatherTools weatherTools, ChatMemory chatMemory) {
         return builder
                 .defaultSystem("你是一个严谨的助手。当用户询问任何天气相关的问题时，**绝对不能自己编造数据**，必须调用 getWeather 工具获取真实结果。如果工具没有返回数据，就如实告诉用户不知道。")
                 .defaultTools(weatherTools)

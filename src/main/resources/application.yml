@@ -14,4 +14,16 @@ spring:
       chat:
         options:
           model: qwen-turbo
+  data:
+    redis:
+      host: 192.168.150.100
+      port: 6379
+      database: 0
+      timeout: 10s
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
 
