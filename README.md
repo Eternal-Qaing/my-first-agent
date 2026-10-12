@@ -1,94 +1,36 @@
-# 我的第一个 Agent
+# My First Agent
 
-基于 Spring Boot 和 Spring AI 的简单 Agent 应用示例。
+> 基于 Spring Boot 4 + Spring AI 2 构建的生产级 Java AI Agent，支持真实工具调用、多轮记忆持久化与流式输出。
 
-## 项目简介
+[![Java](https://img.shields.io/badge/Java-21-orange)](https://openjdk.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.1-green)](https://spring.io/projects/spring-boot)
+[![Spring AI](https://img.shields.io/badge/Spring%20AI-2.0.1-blue)](https://spring.io/projects/spring-ai)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
 
-这是一个入门级的 AI Agent 应用，使用 Spring AI 框架构建，演示了如何创建带有工具调用能力的智能对话 Agent。
+---
 
-## 技术栈
+## ✨ 功能特性
 
-- Java 17+
-- Spring Boot 3.x
-- Spring AI
-- Maven
+| 特性 | 说明 |
+|---|---|
+| 🤖 **大模型对话** | 对接阿里云百炼（通义千问），兼容 OpenAI 协议 |
+| 🛠️ **真实工具调用** | 集成高德地图天气 API，Agent 自主决策调用 |
+| 🧠 **多轮记忆** | 基于 `conversationId` 的会话隔离与上下文记忆 |
+| 💾 **记忆持久化** | 记忆写入 Redis Stack，服务重启不丢失 |
+| ⚡ **SSE 流式输出** | 打字机效果，显著改善长回答的体验 |
+| 🛡️ **全局异常处理** | 统一错误码 + 友好提示，不暴露内部堆栈 |
+| ✅ **参数校验** | 消息长度、会话 ID 长度校验 |
+| 📝 **配置外置** | System Prompt 与 API Key 均通过配置注入 |
+| 🐳 **Docker 化部署** | 一条命令启动，跨环境一致 |
+| 📊 **结构化日志** | SLF4J + 占位符，生产可用 |
 
-## 项目结构
+---
 
-```
-src/main/java/com/qiang/myfirstagent/
-├── MyFirstAgentApplication.java    # Spring Boot 启动类
-├── config/
-│   └── ChatClientConfig.java       # ChatClient 配置
-├── controller/
-│   └── ChatController.java         # REST 控制器
-└── tools/
-    └── WeatherTools.java           # 天气查询工具
-```
+## 🏗️ 架构
 
-## 核心功能
-
-### 1. 智能对话
-通过 `/chat` 接口与 AI 进行对话交互。
-
-### 2. 工具调用
-内置天气查询工具，AI 可以自动调用该工具获取实时天气信息。
-
-## 快速开始
-
-### 1. 克隆项目
-
-```bash
-git clone https://gitee.com/yang-deqiang/my-first-agent.git
-cd my-first-agent
-```
-
-### 2. 配置
-
-在 `src/main/resources/application.yml` 中配置你的 AI API 密钥和模型参数。
-
-### 3. 运行项目
-
-```bash
-./mvnw spring-boot:run
-```
-
-或使用 Maven：
-
-```bash
-./mvnw clean package
-java -jar target/my-first-agent-0.0.1-SNAPSHOT.jar
-```
-
-### 4. 访问服务
-
-启动后访问聊天接口：
-
-```
-http://localhost:8080/chat?message=你好
-```
-
-查询天气：
-
-```
-http://localhost:8080/chat?message=杭州天气怎么样
-```
-
-## API 接口
-
-### 聊天接口
-
-- **URL**: `/chat`
-- **方法**: GET
-- **参数**:
-  - `message`: 对话内容（必填）
-  - `conversationId`: 会话 ID（可选，默认值为 `default_user`）
-- **响应**: JSON 格式的对话回复
-
-## 扩展工具
-
-可以在 `tools` 包中添加更多自定义工具类，只需使用 `@Tool` 和 `@ToolParam` 注解标注方法即可。
-
-## 许可证
-
-本项目仅供学习参考使用。
+```mermaid
+graph LR
+    A[浏览器/客户端] -->|HTTP| B[Spring Boot 应用<br/>:10020]
+    B -->|ChatClient| C[阿里云百炼<br/>通义千问]
+    B -->|@Tool 调用| D[高德天气 API]
+    B -->|ChatMemory| E[(Redis Stack)]

@@ -5,6 +5,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,10 +16,13 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class ChatClientConfig {
+    @Value("${agent.system-prompt}")
+    private String systemPrompt;
+
     @Bean
     public ChatClient chatClient(ChatClient.Builder builder, WeatherTools weatherTools, ChatMemory chatMemory) {
         return builder
-                .defaultSystem("你是一个严谨的助手。当用户询问任何天气相关的问题时，**绝对不能自己编造数据**，必须调用 getWeather 工具获取真实结果。如果工具没有返回数据，就如实告诉用户不知道。")
+                .defaultSystem(systemPrompt)
                 .defaultTools(weatherTools)
                 .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
                 .build();

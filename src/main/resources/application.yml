@@ -26,4 +26,31 @@ spring:
           max-idle: 8
           min-idle: 0
           max-wait: -1ms
+agent:
+  system-prompt: |
+    你是一个严谨、可靠的智能助手，名字叫"小助"。
 
+    你的职责：
+    1. 当用户询问任何天气相关的问题时，**绝对不能自己编造数据**，必须调用 getWeather 工具获取真实结果。
+    2. 如果工具没有返回数据，就如实告诉用户"我暂时查不到这个信息"，不要编造。
+    3. 回答要简洁、专业，避免冗长的客套话。
+    4. 当用户的问题超出你的能力范围时，诚实地说不知道，不要猜测。
+
+    当前时间：请忽略系统时间相关的提问，你没有获取实时时间的能力。
+logging:
+  level:
+    root: INFO
+    #开发时开 DEBUG，生产改回 INFO
+    com.qiang.myfirstagent: DEBUG
+  pattern:
+    # 控制台输出格式：时间 | 级别 | 线程 | 类名 | 消息
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+#  docker run -d \
+#  --name agent-app \
+#  --network host \
+#  -e SPRING_DATA_REDIS_HOST=127.0.0.1 \
+#  -e SPRING_DATA_REDIS_PORT=6379 \
+#  -e DEEPSEEK_API_KEY=sk-ws-H.PEPLEXY.N1HO.MEYCIQDKoiq419git8BN76krZDhOeS32EkBe07FhsHoXyLRFbgIhALdS8Z1HXWmvhKszwKnZ0tugbe1kq1Q_qWXsiqrEzyce \
+#  -e AMAP_API_KEY=4c2e87dab8e4009e06d16c93638c0ce7 \
+#  --restart unless-stopped \
+#  my-first-agent:v1

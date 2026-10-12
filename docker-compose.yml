@@ -1,0 +1,39 @@
+services:
+
+  # ==================== Redis Stack ====================
+  redis:
+    image: redis/redis-stack-server:latest
+    container_name: agent-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ==================== Spring Boot 应用 ====================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agent-app
+    ports:
+      - "10020:10020"
+    environment:
+      # 覆盖 application.yml 中的配置，指向容器内的 redis 服务
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      # 从宿主机环境变量传入密钥（不硬编码在文件里）
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      AMAP_API_KEY: ${AMAP_API_KEY}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  redis-data:

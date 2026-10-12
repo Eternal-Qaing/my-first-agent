@@ -4,14 +4,18 @@ import com.qiang.myfirstagent.common.ErrorCode;
 import com.qiang.myfirstagent.common.ErrorResponse;
 import com.qiang.myfirstagent.handler.exception.BizException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -39,7 +43,7 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException e, HttpServletRequest request) {
         FieldError fieldError = e.getBindingResult().getFieldError();
         String detail = fieldError != null ? fieldError.getDefaultMessage() : ErrorCode.PARAM_INVALID.getMessage();
-        log.warn("参数校验失败 | detail={} | path={}", detail, request.getRequestURI());
+        paramValidation(detail,request.getRequestURI());
         ErrorResponse body = new ErrorResponse(
                 ErrorCode.PARAM_INVALID.getCode(),
                 detail,
@@ -75,6 +79,45 @@ public class GlobalExceptionHandler {
 
         ErrorCode errorCode = mapToErrorCode(e);
         return buildResponse(errorCode, request);
+    }
+
+    /**
+     * 5.处理 @RequestParam / @PathVariable 方法参数级校验异常
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException e, HttpServletRequest request) {
+        String detail = e.getConstraintViolations().stream()
+                .findFirst()
+                .map(ConstraintViolation::getMessage)
+                .orElse(ErrorCode.PARAM_INVALID.getMessage());
+        paramValidation(detail,request.getRequestURI());
+        ErrorResponse body = new ErrorResponse(
+                ErrorCode.PARAM_INVALID.getCode(),
+                detail,
+                LocalDateTime.now().toString(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+    private void paramValidation(String detail, String path) {
+        log.warn("参数校验失败 | detail={} | path={}", detail, path);
+    }
+    /**
+     * 6. 处理静态资源找不到（比如 favicon.ico）
+     *    直接返回 404，不打印 ERROR 日志
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFound(
+            NoResourceFoundException e, HttpServletRequest request) {
+        // 只打 DEBUG 级别，避免污染生产日志
+        log.debug("静态资源不存在 | path={}", request.getRequestURI());
+        ErrorResponse body = new ErrorResponse(
+                404,
+                "资源不存在",
+                LocalDateTime.now().toString(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
     /**
