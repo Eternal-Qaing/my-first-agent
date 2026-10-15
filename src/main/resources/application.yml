@@ -9,11 +9,19 @@ spring:
     name: first-agent
   ai:
     openai:
-      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
-      api-key: ${DEEPSEEK_API_KEY}
+      #kimi_api
+      base-url: https://api.moonshot.cn/v1
+      api-key: ${KIMI_API_KEY}
       chat:
         options:
-          model: qwen-turbo
+          model: kimi-k2.6
+      #aliyun-api
+#      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+#      api-key: ${DEEPSEEK_API_KEY}
+      #deepseek_api
+#      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+#      api-key: ${DEEPSEEK_API_KEY}
+
   data:
     redis:
       host: 192.168.150.100
@@ -50,7 +58,7 @@ logging:
 #  --network host \
 #  -e SPRING_DATA_REDIS_HOST=127.0.0.1 \
 #  -e SPRING_DATA_REDIS_PORT=6379 \
-#  -e DEEPSEEK_API_KEY=sk-ws-H.PEPLEXY.N1HO.MEYCIQDKoiq419git8BN76krZDhOeS32EkBe07FhsHoXyLRFbgIhALdS8Z1HXWmvhKszwKnZ0tugbe1kq1Q_qWXsiqrEzyce \
-#  -e AMAP_API_KEY=4c2e87dab8e4009e06d16c93638c0ce7 \
+#  -e KIMI_API_KEY= \
+#  -e AMAP_API_KEY= \
 #  --restart unless-stopped \
-#  my-first-agent:v1
+#  my-first-agent:v2
