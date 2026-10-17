@@ -1,13 +1,16 @@
 package com.qiang.myfirstagent.controller;
 
+import com.qiang.myfirstagent.rag.DocumentIngestionService;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
@@ -22,6 +25,7 @@ import reactor.core.publisher.Flux;
 @RequiredArgsConstructor
 public class ChatController {
     private final ChatClient chatClient;
+    private final DocumentIngestionService documentIngestionService;
 
     @GetMapping("/chat")
     public String chat(
@@ -62,5 +66,11 @@ public class ChatController {
                     // 流结束时换行
                     System.out.println("\n========== 流式响应结束 ==========");
                 }); // 返回一个 Flux<String> 流
+    }
+    @PostMapping("/rag/ingest")
+    public String ragIngest(@RequestParam String path){
+        FileSystemResource resource = new FileSystemResource(path);
+        int count = documentIngestionService.ingest(resource);
+        return "入库完成，共 " + count + "个分块";
     }
 }
